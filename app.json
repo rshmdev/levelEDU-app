@@ -1,0 +1,70 @@
+{
+  "expo": {
+    "name": "LevelEDU",
+    "slug": "levelEdu",
+    "orientation": "portrait",
+    "scheme": "myapp",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "ios": {
+      "supportsTablet": true
+    },
+    "splash": {
+      "image": "./assets/images/splash-icon.png",
+      "resizeMode": "cover",
+      "backgroundColor": "#000000",
+      "dark": {
+        "image": "./assets/images/splash-icon.png",
+        "backgroundColor": "#000000"
+      }
+    },
+    "android": {
+      "package": "com.shmsoftwaresolutions.levelEdu",
+      "versionCode": 1,
+      "permissions": ["CAMERA", "android.permission.CAMERA"],
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "backgroundColor": "#091929"
+      }
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "static",
+      "favicon": "./assets/images/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/images/splash-icon.png",
+          "resizeMode": "cover",
+          "backgroundColor": "#000000",
+          "dark": {
+            "image": "./assets/images/splash-icon.png",
+            "backgroundColor": "#000000"
+          }
+        }
+      ],
+      "expo-barcode-scanner"
+    ],
+    "experiments": {
+      "typedRoutes": true
+    },
+    "updates": {
+      "enabled": true,
+      "checkAutomatically": "ON_LOAD",
+      "fallbackToCacheTimeout": 0,
+      "url": "https://u.expo.dev/bb6002e1-d613-49b6-a2a4-cb765c058e0c"
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "bb6002e1-d613-49b6-a2a4-cb765c058e0c"
+      }
+    },
+    "runtimeVersion": "1.0.0"
+  }
+}
