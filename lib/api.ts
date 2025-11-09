@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_BASE_URL =  "https://616742b68abb.ngrok-free.app/app";
+const API_BASE_URL =  "https://leveledu-api.onrender.com/app";
 
 const api = axios.create({
   baseURL: API_BASE_URL,
