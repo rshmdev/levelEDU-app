@@ -1,7 +1,10 @@
+"use client"
+
 import React from "react"
 import { View, Text, StyleSheet, TouchableOpacity, Animated, Easing } from "react-native"
 import { FontAwesome5 } from "@expo/vector-icons"
 import { LinearGradient } from "expo-linear-gradient"
+import { Colors } from "@/constants/Colors"
 
 interface MissionCardProps {
   title: string
@@ -95,11 +98,7 @@ const MissionCard: React.FC<MissionCardProps> = ({ title, objective, reward, pro
           />
         )}
         <LinearGradient
-          colors={
-            isCompleted
-              ? ["rgba(124, 58, 237, 1)", "rgba(139, 92, 246, 1)"]
-              : ["rgba(124, 58, 237, 0.95)", "rgba(139, 92, 246, 0.95)"]
-          }
+          colors={isCompleted ? [Colors.success[400], Colors.success[500]] : [Colors.primary[400], Colors.primary[500]]}
           style={styles.card}
         >
           {isCompleted && (
@@ -108,7 +107,6 @@ const MissionCard: React.FC<MissionCardProps> = ({ title, objective, reward, pro
                 styles.shimmer,
                 {
                   transform: [{ translateX: shimmerTranslate }, { rotate: "-60deg" }],
-                  
                 },
               ]}
             />
@@ -232,4 +230,3 @@ const styles = StyleSheet.create({
 })
 
 export default MissionCard
-

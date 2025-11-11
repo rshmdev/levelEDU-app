@@ -1,32 +1,21 @@
-import React from "react";
-import {
-  Modal,
-  View,
-  Text,
-  StyleSheet,
-  Animated,
-  Easing,
-  TouchableOpacity,
-  Pressable,
-} from "react-native";
-import { FontAwesome5 } from "@expo/vector-icons";
-import { LinearGradient } from "expo-linear-gradient";
+"use client"
+
+import React from "react"
+import { Modal, View, Text, StyleSheet, Animated, Easing, TouchableOpacity, Pressable } from "react-native"
+import { FontAwesome5 } from "@expo/vector-icons"
+import { LinearGradient } from "expo-linear-gradient"
+import { Colors } from "@/constants/Colors"
 
 interface CongratulationsModalProps {
-  visible: boolean;
-  onClose: () => void;
-  reward: number;
-  title: string;
+  visible: boolean
+  onClose: () => void
+  reward: number
+  title: string
 }
 
-const CongratulationsModal: React.FC<CongratulationsModalProps> = ({
-  visible,
-  onClose,
-  reward,
-  title,
-}) => {
-  const scaleValue = React.useRef(new Animated.Value(0)).current;
-  const rotateValue = React.useRef(new Animated.Value(0)).current;
+const CongratulationsModal: React.FC<CongratulationsModalProps> = ({ visible, onClose, reward, title }) => {
+  const scaleValue = React.useRef(new Animated.Value(0)).current
+  const rotateValue = React.useRef(new Animated.Value(0)).current
 
   React.useEffect(() => {
     if (visible) {
@@ -50,34 +39,29 @@ const CongratulationsModal: React.FC<CongratulationsModalProps> = ({
               duration: 0,
               useNativeDriver: true,
             }),
-          ])
+          ]),
         ),
-      ]).start();
+      ]).start()
     } else {
-      scaleValue.setValue(0);
+      scaleValue.setValue(0)
     }
-  }, [visible]);
+  }, [visible])
 
   const spin = rotateValue.interpolate({
     inputRange: [0, 1],
     outputRange: ["0deg", "360deg"],
-  });
+  })
 
   const handleBackdropPress = () => {
     Animated.timing(scaleValue, {
       toValue: 0,
       duration: 200,
       useNativeDriver: true,
-    }).start(() => onClose());
-  };
+    }).start(() => onClose())
+  }
 
   return (
-    <Modal
-      transparent
-      visible={visible}
-      animationType="fade"
-      onRequestClose={onClose}
-    >
+    <Modal transparent visible={visible} animationType="fade" onRequestClose={onClose}>
       <Pressable style={styles.modalOverlay} onPress={handleBackdropPress}>
         <Animated.View
           style={[
@@ -89,20 +73,15 @@ const CongratulationsModal: React.FC<CongratulationsModalProps> = ({
         >
           <Pressable>
             <LinearGradient
-              colors={["rgba(124, 58, 237, 0.95)", "rgba(139, 92, 246, 0.95)"]}
+              colors={[`${Colors.primary[700]}F2`, `${Colors.primary[600]}F2`]}
               style={styles.gradientContainer}
             >
-              <TouchableOpacity
-                style={styles.closeButton}
-                onPress={handleBackdropPress}
-              >
+              <TouchableOpacity style={styles.closeButton} onPress={handleBackdropPress}>
                 <FontAwesome5 name="times" size={20} color="#fff" />
               </TouchableOpacity>
 
               <View style={styles.starContainer}>
-                <Animated.View
-                  style={[styles.star, { transform: [{ rotate: spin }] }]}
-                >
+                <Animated.View style={[styles.star, { transform: [{ rotate: spin }] }]}>
                   <FontAwesome5 name="star" size={50} color="#FFD700" solid />
                 </Animated.View>
               </View>
@@ -113,10 +92,7 @@ const CongratulationsModal: React.FC<CongratulationsModalProps> = ({
                 <Text style={styles.rewardText}>+{reward}</Text>
               </View>
 
-              <TouchableOpacity
-                style={styles.continueButton}
-                onPress={handleBackdropPress}
-              >
+              <TouchableOpacity style={styles.continueButton} onPress={handleBackdropPress}>
                 <Text style={styles.continueText}>Continuar</Text>
               </TouchableOpacity>
             </LinearGradient>
@@ -124,8 +100,8 @@ const CongratulationsModal: React.FC<CongratulationsModalProps> = ({
         </Animated.View>
       </Pressable>
     </Modal>
-  );
-};
+  )
+}
 
 const styles = StyleSheet.create({
   modalOverlay: {
@@ -219,6 +195,6 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     textAlign: "center",
   },
-});
+})
 
-export default CongratulationsModal;
+export default CongratulationsModal

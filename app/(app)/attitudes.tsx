@@ -1,68 +1,52 @@
-import React, { useState } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  FlatList,
-  TouchableOpacity,
-} from "react-native";
-import { TabsView } from "@/components/TabsView";
-import Header from "@/components/Header";
-import { FontAwesome5 } from "@expo/vector-icons";
-import { useNavigation } from "expo-router";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { claimAttitude, getUserAttitudes } from "@/service/attitudes";
-import { Attitude } from "@/types/attitudes";
-import { useAuth } from "@/hooks/useAuth";
-import AttitudeCard from "@/components/AttitudeCard";
-import AttitudeRewardModal from "@/components/AttitudeRewardModal";
-import Toast from "react-native-toast-message";
+"use client"
+
+import { useState } from "react"
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, Alert } from "react-native"
+import { TabsView } from "@/components/TabsView"
+import Header from "@/components/Header"
+import { FontAwesome5 } from "@expo/vector-icons"
+import { useNavigation } from "expo-router"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { claimAttitude, getUserAttitudes } from "@/service/attitudes"
+import type { Attitude } from "@/types/attitudes"
+import { useAuth } from "@/hooks/useAuth"
+import AttitudeCard from "@/components/AttitudeCard"
+import AttitudeRewardModal from "@/components/AttitudeRewardModal"
+import { LinearGradient } from "expo-linear-gradient"
+import { Colors } from "@/constants/Colors"
 
 const AttitudesScreen = () => {
-  const navigation = useNavigation();
-  const { user, updateUser } = useAuth();
-  const [selectedAttitude, setSelectedAttitude] = useState<Attitude | null>(
-    null
-  );
+  const navigation = useNavigation()
+  const { user, updateUser } = useAuth()
+  const [selectedAttitude, setSelectedAttitude] = useState<Attitude | null>(null)
 
-  const queryClient = useQueryClient();
+  const queryClient = useQueryClient()
 
   const { data } = useQuery({
     queryFn: () => getUserAttitudes(user?._id || ""),
     queryKey: ["user-attitudes", user],
     enabled: !!user,
-  });
+  })
 
   const { mutateAsync } = useMutation({
-    mutationFn: (attitudeId: string) =>
-      claimAttitude(user?._id || "", attitudeId),
+    mutationFn: (attitudeId: string) => claimAttitude(user?._id || "", attitudeId),
     onSuccess: (data) => {
-      updateUser();
-      Toast.show({
-        type: "success",
-        text1: "Sucesso",
-        text2: data.message,
-        position: "bottom",
-      });
-      queryClient.invalidateQueries({ queryKey: ["user-attitudes"] });
+      updateUser()
+      Alert.alert("Sucesso", data.message)
+      queryClient.invalidateQueries({ queryKey: ["user-attitudes"] })
     },
     onError: (error: any) => {
-      const apiErrorMessage = error?.response?.data?.message;
-      Toast.show({
-        type: "error",
-        text1: "Erro",
-        text2: apiErrorMessage,
-        position: "bottom",
-      });
+      const apiErrorMessage = error?.response?.data?.message
+      Alert.alert("Erro", apiErrorMessage)
     },
-  });
+  })
 
   const handleAttitudePress = async (attitude: Attitude) => {
     if (!attitude.isClaimed) {
-      await mutateAsync(attitude._id);
-      setSelectedAttitude(attitude);
+      await mutateAsync(attitude._id)
+      setSelectedAttitude(attitude)
     }
-  };
+  }
 
   const renderAttitudeItem = ({ item }: { item: Attitude }) => (
     <TouchableOpacity onPress={() => handleAttitudePress(item)}>
@@ -76,34 +60,82 @@ const AttitudesScreen = () => {
         xp={item.xp}
       />
     </TouchableOpacity>
-  );
+  )
+
+  const positiveCount = data?.filter((a: Attitude) => a.isPositive).length || 0
+  const negativeCount = data?.filter((a: Attitude) => !a.isPositive).length || 0
+  const totalCount = data?.length || 0
 
   return (
     <TabsView>
-      <Header />
       <View style={styles.container}>
-        <View style={styles.header}>
-          <TouchableOpacity
-            onPress={() => navigation.goBack()}
-            style={styles.backButton}
-          >
-            <FontAwesome5 name="arrow-left" size={20} color="#fff" />
-          </TouchableOpacity>
-          <View style={styles.headerTextContainer}>
-            <Text style={styles.headerText}>Atitudes</Text>
-            <Text style={styles.subHeaderText}>
-              Histórico de comportamentos e recompensas
-            </Text>
+        <LinearGradient
+          colors={[Colors.primary[500], Colors.primary[600], Colors.primary[700]]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.headerGradient}
+        >
+          <View style={styles.headerContent}>
+            <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+              <FontAwesome5 name="arrow-left" size={20} color={Colors.white} />
+            </TouchableOpacity>
+            <View style={styles.headerTextContainer}>
+              <Text style={styles.headerText}>Atitudes</Text>
+              <Text style={styles.subHeaderText}>Histórico de comportamentos e recompensas</Text>
+            </View>
           </View>
+
+          <View style={styles.statsBar}>
+            <View style={styles.statItem}>
+              <FontAwesome5 name="smile" size={16} color="#FFD700" />
+              <Text style={styles.statLabel}>Positivas</Text>
+              <Text style={styles.statValue}>{positiveCount}</Text>
+            </View>
+            <View style={styles.statDivider} />
+            <View style={styles.statItem}>
+              <FontAwesome5 name="frown" size={16} color="#FF6B6B" />
+              <Text style={styles.statLabel}>Negativas</Text>
+              <Text style={styles.statValue}>{negativeCount}</Text>
+            </View>
+            <View style={styles.statDivider} />
+            <View style={styles.statItem}>
+              <FontAwesome5 name="chart-bar" size={16} color="#fff" />
+              <Text style={styles.statLabel}>Total</Text>
+              <Text style={styles.statValue}>{totalCount}</Text>
+            </View>
+          </View>
+        </LinearGradient>
+
+        <View style={styles.badgeContainer}>
+          <LinearGradient
+            colors={[Colors.primary[500], Colors.primary[600]]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+            style={styles.badge}
+          >
+            <FontAwesome5 name="history" size={14} color={Colors.white} />
+            <Text style={styles.badgeText}>
+              {totalCount} {totalCount === 1 ? "atitude registrada" : "atitudes registradas"}
+            </Text>
+          </LinearGradient>
         </View>
 
-        <FlatList
-          data={data}
-          renderItem={renderAttitudeItem}
-          keyExtractor={(item) => item._id}
-          contentContainerStyle={styles.listContainer}
-          showsVerticalScrollIndicator={false}
-        />
+        {totalCount === 0 ? (
+          <View style={styles.emptyState}>
+            <FontAwesome5 name="clipboard-list" size={48} color={Colors.primary[500]} />
+            <Text style={styles.emptyTitle}>Nenhuma atitude registrada</Text>
+            <Text style={styles.emptyDescription}>Suas atitudes e comportamentos aparecerão aqui</Text>
+          </View>
+        ) : (
+          <FlatList
+            data={data}
+            renderItem={renderAttitudeItem}
+            keyExtractor={(item) => item._id}
+            contentContainerStyle={styles.listContainer}
+            showsVerticalScrollIndicator={false}
+          />
+        )}
+
         {selectedAttitude && (
           <AttitudeRewardModal
             isVisible={!!selectedAttitude}
@@ -113,14 +145,121 @@ const AttitudesScreen = () => {
         )}
       </View>
     </TabsView>
-  );
-};
+  )
+}
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingTop: 25,
+  },
+  headerGradient: {
+    borderRadius: 20,
+    marginHorizontal: 15,
+    padding: 20,
+    shadowColor: "#4CAF50",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
+    marginBottom: 16,
+  },
+  headerContent: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 16,
+  },
+  backButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(255, 255, 255, 0.2)",
+  },
+  headerTextContainer: {
+    marginLeft: 12,
+    flex: 1,
+  },
+  headerText: {
+    fontSize: 28,
+    fontWeight: "bold",
+    color: "#fff",
+    marginBottom: 4,
+    textShadowColor: "rgba(0, 0, 0, 0.2)",
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
+  },
+  subHeaderText: {
+    fontSize: 14,
+    color: "rgba(255, 255, 255, 0.9)",
+  },
+  statsBar: {
+    flexDirection: "row",
+    backgroundColor: "rgba(0, 0, 0, 0.15)",
+    borderRadius: 12,
+    padding: 12,
+    justifyContent: "space-around",
+  },
+  statItem: {
+    alignItems: "center",
+    flex: 1,
+  },
+  statLabel: {
+    fontSize: 11,
+    color: "rgba(255, 255, 255, 0.9)",
+    marginTop: 4,
+    marginBottom: 2,
+  },
+  statValue: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#fff",
+  },
+  statDivider: {
+    width: 1,
+    backgroundColor: "rgba(255, 255, 255, 0.2)",
+    marginHorizontal: 8,
+  },
+  badgeContainer: {
     paddingHorizontal: 15,
+    marginBottom: 16,
+  },
+  badge: {
+    flexDirection: "row",
+    alignItems: "center",
+    alignSelf: "flex-start",
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
+    gap: 6,
+  },
+  badgeText: {
+    color: "#fff",
+    fontSize: 12,
+    fontWeight: "600",
+  },
+  emptyState: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 40,
+  },
+  emptyTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+    color: "#fff",
+    marginTop: 16,
+    marginBottom: 8,
+  },
+  emptyDescription: {
+    fontSize: 14,
+    color: "#9CA3AF",
+    textAlign: "center",
+  },
+  listContainer: {
+    paddingHorizontal: 15,
+    paddingBottom: 20,
   },
   glowContainer: {
     position: "absolute",
@@ -129,7 +268,7 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     borderRadius: 16,
-    backgroundColor: "rgba(255, 255, 255, 0.3)", // Ajuste para o brilho
+    backgroundColor: "rgba(255, 255, 255, 0.3)",
   },
   shimmer: {
     position: "absolute",
@@ -140,40 +279,6 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(255, 255, 255, 0.2)",
     borderRadius: 16,
     transform: [{ skewX: "-20deg" }],
-  },
-  header: {
-    flexDirection: "row",
-    alignItems: "flex-start",
-    marginBottom: 20,
-  },
-  backButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#4CAF50",
-    shadowColor: "#000",
-    shadowOffset: { width: 2, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
-  },
-  headerTextContainer: {
-    marginLeft: 15,
-  },
-  headerText: {
-    fontSize: 24,
-    fontWeight: "bold",
-    color: "#fff",
-    marginBottom: 4,
-  },
-  subHeaderText: {
-    fontSize: 14,
-    color: "#9CA3AF",
-  },
-  listContainer: {
-    paddingBottom: 20,
   },
   attitudeCard: {
     borderRadius: 16,
@@ -238,6 +343,6 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontWeight: "bold",
   },
-});
+})
 
-export default AttitudesScreen;
+export default AttitudesScreen

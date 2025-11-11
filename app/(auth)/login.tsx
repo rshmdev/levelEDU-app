@@ -1,17 +1,16 @@
 "use client"
 
 import { Fragment, useEffect, useState } from "react"
-import { Text, View, StyleSheet, TouchableOpacity, ImageBackground, BackHandler, ActivityIndicator } from "react-native"
+import { Text, View, StyleSheet, TouchableOpacity, ImageBackground, BackHandler, ActivityIndicator, Alert } from "react-native"
 import { CameraView, type CameraType, useCameraPermissions } from "expo-camera"
 import { router } from "expo-router"
 import { FontAwesome5 } from "@expo/vector-icons"
 import { useAuth } from "@/hooks/useAuth"
 import api from "@/lib/api"
-import Toast from "react-native-toast-message"
-import { toastConfig } from "@/components/TabsView"
 import { StatusBar } from "expo-status-bar"
 import AnimatedLogo from "@/components/LoopImages"
 import { LinearGradient } from "expo-linear-gradient"
+import { Colors } from "@/constants/Colors"
 
 const image = require("@/assets/images/bg-2.jpg")
 
@@ -43,16 +42,16 @@ const LoginScreen = () => {
   if (!permission.granted) {
     return (
       <View style={styles.container}>
-        <LinearGradient colors={["#0f0c29", "#302b63", "#24243e"]} style={styles.gradientContainer}>
+        <LinearGradient colors={[Colors.primary[900], Colors.primary[800], Colors.primary[700]]} style={styles.gradientContainer}>
           <View style={styles.permissionContainer}>
             <View style={styles.permissionIconContainer}>
-              <FontAwesome5 name="camera" size={60} color="#a78bfa" />
+              <FontAwesome5 name="camera" size={60} color={Colors.primary[400]} />
             </View>
             <Text style={styles.permissionTitle}>Acesso à Câmera</Text>
             <Text style={styles.message}>Precisamos da sua permissão para usar a câmera e escanear QR Codes</Text>
             <TouchableOpacity style={styles.permissionButton} onPress={requestPermission}>
               <LinearGradient
-                colors={["#8b5cf6", "#a78bfa"]}
+                colors={[Colors.primary[600], Colors.primary[500]]}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 0 }}
                 style={styles.buttonGradient}
@@ -72,6 +71,7 @@ const LoginScreen = () => {
       
       // Parse do QR code que agora deve conter: userId|tenantId
       const qrData = data.split('|')
+      console.log(qrData, data)
       if (qrData.length !== 2) {
         throw new Error('QR Code inválido. Formato esperado: userId|tenantId')
       }
@@ -91,12 +91,7 @@ const LoginScreen = () => {
     } catch (error: any) {
       setScanned(false)
       const apiErrorMessage = error?.response?.data?.message || error.message
-      Toast.show({
-        type: "error",
-        text1: "Erro",
-        text2: apiErrorMessage,
-        position: "bottom",
-      })
+      Alert.alert("Erro", apiErrorMessage)
     } finally {
       setLoading(false)
     }
@@ -111,7 +106,7 @@ const LoginScreen = () => {
       <View style={styles.container}>
         <ImageBackground source={image} resizeMode="cover" style={styles.image}>
           <LinearGradient
-            colors={["rgba(15, 12, 41, 0.95)", "rgba(48, 43, 99, 0.9)", "rgba(36, 36, 62, 0.95)"]}
+            colors={[`${Colors.primary[900]}F2`, `${Colors.primary[800]}E6`, `${Colors.primary[700]}F2`]}
             style={styles.gradientOverlay}
           >
             <StatusBar style="light" />
@@ -133,7 +128,7 @@ const LoginScreen = () => {
 
                   <TouchableOpacity style={styles.startButton} onPress={startScanning} activeOpacity={0.8}>
                     <LinearGradient
-                      colors={["#8b5cf6", "#a78bfa", "#c4b5fd"]}
+                      colors={[Colors.primary[600], Colors.primary[500], Colors.primary[400]]}
                       start={{ x: 0, y: 0 }}
                       end={{ x: 1, y: 0 }}
                       style={styles.buttonGradient}
@@ -201,7 +196,6 @@ const LoginScreen = () => {
           </LinearGradient>
         </ImageBackground>
       </View>
-      <Toast config={toastConfig} topOffset={50} />
     </Fragment>
   )
 }

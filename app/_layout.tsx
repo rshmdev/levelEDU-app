@@ -9,11 +9,13 @@ import * as SplashScreen from "expo-splash-screen";
 import { useEffect, useState } from "react";
 import * as Font from "expo-font";
 import { Entypo } from "@expo/vector-icons";
-import { AppStateStatus, Platform } from "react-native";
+import { AppStateStatus, Platform, View, StatusBar } from "react-native";
 import { useOnlineManager } from "@/hooks/useOnlineManager";
 import { useAppState } from "@/hooks/useAppState";
 import SplashScreenComponent from "@/components/SplashScreen";
 import * as Updates from "expo-updates";
+import { SafeAreaProvider, useSafeAreaInsets } from "react-native-safe-area-context";
+import { Colors } from "@/constants/Colors";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -87,24 +89,48 @@ function RootLayoutNav() {
   });
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        {loading ? (
-          <SplashScreenComponent />
-        ) : (
-          <Stack
-            screenOptions={{
-              headerShown: false,
-              animation: "fade",
-              animationDuration: 500,
-            }}
-          >
-            <Stack.Screen name="index" />
-            <Stack.Screen name="(auth)" />
-            <Stack.Screen name="(app)" />
-          </Stack>
-        )}
-      </AuthProvider>
-    </QueryClientProvider>
+    <SafeAreaProvider>
+      <QueryClientProvider client={queryClient}>
+        <AuthProvider>
+          {loading ? (
+            <SplashScreenComponent />
+          ) : (
+            <SafeArea />
+          )}
+        </AuthProvider>
+      </QueryClientProvider>
+    </SafeAreaProvider>
+  );
+}
+
+function SafeArea() {
+  const insets = useSafeAreaInsets();
+
+  return (
+    <View style={{
+      flex: 1,
+      paddingTop: insets.top,
+      paddingBottom: insets.bottom,
+      backgroundColor: "#000", // ou a cor de fundo da sua app
+
+    }}>
+      <StatusBar
+        barStyle="dark-content"
+        translucent={false}
+        backgroundColor="#000"
+
+      />
+      <Stack
+        screenOptions={{
+          headerShown: false,
+          animation: "fade",
+          animationDuration: 500,
+        }}
+      >
+        <Stack.Screen name="index" />
+        <Stack.Screen name="(auth)" />
+        <Stack.Screen name="(app)" />
+      </Stack>
+    </View>
   );
 }
