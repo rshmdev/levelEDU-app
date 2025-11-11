@@ -12,6 +12,7 @@ export interface User {
   qrcode: string;
   updatedAt: string;
   xp: number;
+  tenantId?: string; // Adicionar tenantId
 }
 
 interface AuthContextData {
@@ -60,23 +61,40 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const saveUserToStorage = async (userData: User) => {
     setUser(userData);
     await AsyncStorage.setItem("@user", JSON.stringify(userData));
+    await AsyncStorage.setItem("@userId", userData._id);
+    
+    // Configurar headers da API se tenantId estiver disponível
+    if (userData.tenantId) {
+      await AsyncStorage.setItem("@tenantId", userData.tenantId);
+      api.defaults.headers['x-tenant-id'] = userData.tenantId;
+    }
   };
 
   const logout = async () => {
     setUser(null);
     await AsyncStorage.removeItem("@user");
+    await AsyncStorage.removeItem("@userId");
+    await AsyncStorage.removeItem("@tenantId");
+    // Limpar headers da API
+    delete api.defaults.headers['x-tenant-id'];
   };
 
   React.useEffect(() => {
     const initializeUser = async () => {
       setLoading(true);
       const storedUser = await AsyncStorage.getItem("@user");
+      const storedTenantId = await AsyncStorage.getItem("@tenantId");
+      
       if (storedUser) {
-        setUser(JSON.parse(storedUser));
-        setLoading(false);
+        const userData = JSON.parse(storedUser);
+        setUser(userData);
+        
+        // Configurar headers da API se tenantId estiver disponível
+        if (storedTenantId) {
+          api.defaults.headers['x-tenant-id'] = storedTenantId;
+        }
       }
 
-      
       // Atualiza o usuário logo após carregar do armazenamento
       await updateUser(true); // Força atualização inicial
       setLoading(false);

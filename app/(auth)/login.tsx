@@ -69,8 +69,18 @@ const LoginScreen = () => {
   const handleBarCodeScanned = async ({ data }: { data: string }) => {
     try {
       setLoading(true)
+      
+      // Parse do QR code que agora deve conter: userId|tenantId
+      const qrData = data.split('|')
+      if (qrData.length !== 2) {
+        throw new Error('QR Code inválido. Formato esperado: userId|tenantId')
+      }
+      
+      const [userId, tenantId] = qrData
+      
       const response = await api.post("/login", {
-        userId: data,
+        userId,
+        tenantId,
       })
 
       if (response?.data?.user) {
@@ -80,7 +90,7 @@ const LoginScreen = () => {
       }
     } catch (error: any) {
       setScanned(false)
-      const apiErrorMessage = error?.response?.data?.message
+      const apiErrorMessage = error?.response?.data?.message || error.message
       Toast.show({
         type: "error",
         text1: "Erro",

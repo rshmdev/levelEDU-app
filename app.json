@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "LevelEDU",
-    "slug": "levelEdu",
+    "slug": "razao-quest",
     "orientation": "portrait",
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
@@ -21,7 +21,10 @@
     "android": {
       "package": "com.shmsoftwaresolutions.levelEdu",
       "versionCode": 1,
-      "permissions": ["CAMERA", "android.permission.CAMERA"],
+      "permissions": [
+        "CAMERA",
+        "android.permission.CAMERA"
+      ],
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#091929"
@@ -65,6 +68,7 @@
         "projectId": "bb6002e1-d613-49b6-a2a4-cb765c058e0c"
       }
     },
-    "runtimeVersion": "1.0.0"
+    "runtimeVersion": "1.0.0",
+    "owner": "shmsofwaresolutions"
   }
 }
